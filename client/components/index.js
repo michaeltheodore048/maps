@@ -1,5 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
+import req from 'superagent'
 import { withGoogleMap, GoogleMap, Marker, DirectionsRenderer } from "react-google-maps"
 
 // Components
@@ -15,10 +16,6 @@ class Index extends React.Component {
 			distanceMatrix: null
     }
 	}
-
-  onMarkerRightClick(index){
-    console.log('rightclick', index)
-  }
 
 	handleMapLoad(map){
 		this._mapComponent = map
@@ -49,12 +46,34 @@ class Index extends React.Component {
       avoidTolls: false
 		}, (result, status) => {
 			if (status == 'OK') {
-				console.log(result)
 				this.setState({ distanceMatrix: result })
 			} else {
 				console.error(`error fetching distance matrix ${result}`)
 			}
 		})
+
+		let { markers, distanceMatrix } = this.state
+
+		if(distanceMatrix) {
+			let origin = `${markers[0].position.lat()},${markers[0].position.lng()}`
+			let destination = `${markers[1].position.lat()},${markers[1].position.lng()}`
+			let result = distanceMatrix.rows[0].elements[0]
+
+			// Get distanceMatrix
+			req.get('http://localhost:3010/getDistanceMatrix')
+				.query({
+					origin: origin,
+					destination: destination,
+					distance: result.distance.text,
+					time: result.duration.text
+				})
+				.withCredentials()
+				.end((err, res) => {
+					console.log(err, 'err')
+					console.log(res, 'res')
+					if(err) console.log(err)
+				})
+		}
 	}
 
 	handleMapClick(event){
@@ -72,7 +91,9 @@ class Index extends React.Component {
       markers: nextMarker,
     })
 
-		this.state.markers.length == 2 && this.handleDistance()
+		if (this.state.markers.length == 2){
+			this.handleDistance()
+		}
 	}
 
 	handleMarkerRightClick(idx){
