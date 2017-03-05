@@ -4,9 +4,14 @@
   "description": "",
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "build": "webpack -w",
+    "start": "npm run build && node server.js"
+  },
   "dependencies": {
     "axios": "^0.8.0",
     "babel-polyfill": "^6.9.1",
+    "body-parser": "^1.17.0",
     "express": "^4.14.1",
     "history": "^1.17.0",
     "lodash": "^4.17.4",

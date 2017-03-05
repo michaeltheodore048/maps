@@ -4,7 +4,7 @@ import req from 'superagent'
 import { withGoogleMap, GoogleMap, Marker, DirectionsRenderer } from "react-google-maps"
 
 // Components
-import DistanceMatrix from './DistanceMatrix'
+import DistanceMatrix from './distanceMatrix'
 
 class Index extends React.Component {
 
@@ -31,7 +31,10 @@ class Index extends React.Component {
       travelMode: google.maps.TravelMode.DRIVING,
     }, (result, status) => {
       if (status === google.maps.DirectionsStatus.OK) {
-        this.setState({ directions: result })
+        this.setState({
+					directions: result,
+					markers: []
+				})
       } else {
         console.error(`error fetching directions ${result}`)
       }
@@ -44,36 +47,32 @@ class Index extends React.Component {
 			unitSystem: google.maps.UnitSystem.METRIC,
       avoidHighways: false,
       avoidTolls: false
-		}, (result, status) => {
+		}, (distanceMatrix, status) => {
 			if (status == 'OK') {
-				this.setState({ distanceMatrix: result })
+				this.setState({ distanceMatrix })
+
+				let { markers } = this.state
+				let origin = `${markers[0].position.lat()},${markers[0].position.lng()}`
+				let destination = `${markers[1].position.lat()},${markers[1].position.lng()}`
+				let result = distanceMatrix.rows[0].elements[0]
+
+				// Post distanceMatrix
+				req.post('/postDistanceMatrix')
+					.send({
+						origin: origin,
+						destination: destination,
+						distance: result.distance.text,
+						time: result.duration.text
+					})
+					.end((err, res) => {
+						if(err) console.log(err)
+					})
+
 			} else {
 				console.error(`error fetching distance matrix ${result}`)
 			}
 		})
 
-		let { markers, distanceMatrix } = this.state
-
-		if(distanceMatrix) {
-			let origin = `${markers[0].position.lat()},${markers[0].position.lng()}`
-			let destination = `${markers[1].position.lat()},${markers[1].position.lng()}`
-			let result = distanceMatrix.rows[0].elements[0]
-
-			// Get distanceMatrix
-			req.get('http://localhost:3010/getDistanceMatrix')
-				.query({
-					origin: origin,
-					destination: destination,
-					distance: result.distance.text,
-					time: result.duration.text
-				})
-				.withCredentials()
-				.end((err, res) => {
-					console.log(err, 'err')
-					console.log(res, 'res')
-					if(err) console.log(err)
-				})
-		}
 	}
 
 	handleMapClick(event){

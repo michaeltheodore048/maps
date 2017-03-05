@@ -1,4 +1,3 @@
-var GoogleMap = require('react-google-maps');
 
 module.exports = {
   homePage: (req, res, next) => {
@@ -17,13 +16,12 @@ module.exports = {
       res.send(temp)
     })
   },
-  getDistanceMatrix: (req, res, next) => {
-    let origin = req.params.origin.split(',')
-    let destination = req.params.destination.split(',')
-    let distance = req.params.distance
-    let time = req.params.time
-
-    console.log(req.params, 'params')
+  postDistanceMatrix: (req, res, next) => {
+    let origin = req.body.origin.split(',')
+    let destination = req.body.destination.split(',')
+    let distance = req.body.distance
+    let time = req.body.time
+    console.log(req)
 
     req.models.distanceMatrix.create([
       {

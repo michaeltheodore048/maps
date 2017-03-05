@@ -24221,9 +24221,9 @@
 
 	var _reactGoogleMaps = __webpack_require__(219);
 
-	var _DistanceMatrix = __webpack_require__(533);
+	var _distanceMatrix = __webpack_require__(533);
 
-	var _DistanceMatrix2 = _interopRequireDefault(_DistanceMatrix);
+	var _distanceMatrix2 = _interopRequireDefault(_distanceMatrix);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -24271,7 +24271,10 @@
 					travelMode: google.maps.TravelMode.DRIVING
 				}, function (result, status) {
 					if (status === google.maps.DirectionsStatus.OK) {
-						_this2.setState({ directions: result });
+						_this2.setState({
+							directions: result,
+							markers: []
+						});
 					} else {
 						console.error('error fetching directions ' + result);
 					}
@@ -24284,36 +24287,29 @@
 					unitSystem: google.maps.UnitSystem.METRIC,
 					avoidHighways: false,
 					avoidTolls: false
-				}, function (result, status) {
+				}, function (distanceMatrix, status) {
 					if (status == 'OK') {
-						_this2.setState({ distanceMatrix: result });
+						_this2.setState({ distanceMatrix: distanceMatrix });
+
+						var markers = _this2.state.markers;
+
+						var origin = markers[0].position.lat() + ',' + markers[0].position.lng();
+						var destination = markers[1].position.lat() + ',' + markers[1].position.lng();
+						var _result = distanceMatrix.rows[0].elements[0];
+
+						// Post distanceMatrix
+						_superagent2.default.post('/postDistanceMatrix').send({
+							origin: origin,
+							destination: destination,
+							distance: _result.distance.text,
+							time: _result.duration.text
+						}).end(function (err, res) {
+							if (err) console.log(err);
+						});
 					} else {
 						console.error('error fetching distance matrix ' + result);
 					}
 				});
-
-				var _state = this.state,
-				    markers = _state.markers,
-				    distanceMatrix = _state.distanceMatrix;
-
-
-				if (distanceMatrix) {
-					var origin = markers[0].position.lat() + ',' + markers[0].position.lng();
-					var destination = markers[1].position.lat() + ',' + markers[1].position.lng();
-					var result = distanceMatrix.rows[0].elements[0];
-
-					// Get distanceMatrix
-					_superagent2.default.get('http://localhost:3010/getDistanceMatrix').query({
-						origin: origin,
-						destination: destination,
-						distance: result.distance.text,
-						time: result.duration.text
-					}).withCredentials().end(function (err, res) {
-						console.log(err, 'err');
-						console.log(res, 'res');
-						if (err) console.log(err);
-					});
-				}
 			}
 		}, {
 			key: 'handleMapClick',
@@ -24351,7 +24347,7 @@
 				return _react2.default.createElement(
 					'div',
 					null,
-					this.state.distanceMatrix && _react2.default.createElement(_DistanceMatrix2.default, { distanceMatrix: this.state.distanceMatrix }),
+					this.state.distanceMatrix && _react2.default.createElement(_distanceMatrix2.default, { distanceMatrix: this.state.distanceMatrix }),
 					_react2.default.createElement(GettingStartedGoogleMap, {
 						containerElement: _react2.default.createElement('div', { style: { height: '80vh' } }),
 						mapElement: _react2.default.createElement('div', { style: { height: '80vh' } }),
