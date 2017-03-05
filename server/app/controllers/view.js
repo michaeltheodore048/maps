@@ -21,7 +21,6 @@ module.exports = {
     let destination = req.body.destination.split(',')
     let distance = req.body.distance
     let time = req.body.time
-    console.log(req)
 
     req.models.distanceMatrix.create([
       {
