@@ -1,5 +1,5 @@
 module.exports = function (orm, db) {
-  var distanceMatrix = db.define('distanceMatrix', {
+  var distancematrix = db.define('distancematrix', {
     OriginLat: { type: 'text', required: true },
     OriginLong: { type: 'text', required: true },
     DestinationLat: { type: 'text', required: true },

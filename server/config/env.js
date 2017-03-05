@@ -1,6 +1,7 @@
 var path     = require('path');
 var express  = require('express');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var mysql = require('mysql');
 var settings = require('./settings');
 var models = require('../app/models');
 
@@ -8,6 +9,17 @@ module.exports = function (app) {
     app.use('/public', express.static(__root + '/public'))
     app.set('view engine', 'jade')
     app.set("views", __root + '/public');
+
+    let pool = mysql.createPool(settings.database)
+    .on("connection", function(connection) {
+    	console.log("pulling out a connection now")
+    })
+
+    pool.getConnection(function(err, connection) {
+    	if (err) {
+    		throw err;
+    	}
+    })
 
     app.use(bodyParser.json() );
     app.use(bodyParser.urlencoded({ extended: false }));

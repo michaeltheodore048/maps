@@ -5,8 +5,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "build": "webpack -w",
-    "start": "npm run build && node server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "axios": "^0.8.0",
@@ -18,6 +17,7 @@
     "mysql": "^2.13.0",
     "orm": "^3.2.3",
     "path": "^0.12.7",
+    "pug": "^2.0.0-beta11",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",
     "react-google-maps": "^6.0.1",

@@ -7,7 +7,7 @@ module.exports = {
     res.render("notFound.pug");
   },
   getAllResult: (req, res, next) => {
-    req.models.distanceMatrix.find().all(function (err, val) {
+    req.models.distancematrix.find().all(function (err, val) {
       if (err) return next(err);
 
       let temp = val.map(function(value, key){
@@ -22,7 +22,7 @@ module.exports = {
     let distance = req.body.distance
     let time = req.body.time
 
-    req.models.distanceMatrix.create([
+    req.models.distancematrix.create([
       {
         OriginLat: origin[0],
         OriginLong: origin[1],
@@ -34,7 +34,8 @@ module.exports = {
     ], function(err, items){
       if(err) {
         console.log(err)
-        res.send('ERROR', err)
+        res.status('ERROR')
+        res.send(err)
       }
       res.send(items)
     })
